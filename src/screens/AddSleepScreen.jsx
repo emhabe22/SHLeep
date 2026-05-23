@@ -3,45 +3,93 @@ import {
   View,
   Text,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   Alert,
 } from 'react-native';
 
-import InputField from '../components/InputField';
+const API_URL = 'https://6a12302178d0434e0d5d1fc3.mockapi.io/sleep';
 
-const AddSleepScreen = () => {
-  const [jamTidur, setJamTidur] = useState('');
-  const [durasi, setDurasi] = useState('');
-  const [kualitas, setKualitas] = useState('');
+const AddSleepScreen = ({ navigation }) => {
+  // State untuk menyimpan input judul tidur
+  const [title, setTitle] = useState('');
 
-  // Fungsi untuk menambahkan catatan tidur
-  const handleAdd = () => {
-    Alert.alert('Berhasil', 'Catatan tidur berhasil ditambahkan');
+  // State untuk menyimpan input durasi tidur
+  const [duration, setDuration] = useState('');
+
+  // State untuk menyimpan input kualitas tidur
+  const [quality, setQuality] = useState('');
+
+  // State untuk menyimpan input gambar
+  const [image, setImage] = useState('');
+
+  // Fungsi POST untuk menambahkan data tidur ke MockAPI
+  const addSleepData = async () => {
+    if (title === '' || duration === '' || quality === '') {
+      Alert.alert('Peringatan', 'Data tidur harus diisi');
+      return;
+    }
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          duration,
+          quality,
+          image:
+            image ||
+            'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200',
+        }),
+      });
+
+      Alert.alert('Berhasil', 'Catatan tidur berhasil ditambahkan');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'Gagal menambahkan data tidur');
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tambah Catatan Tidur</Text>
 
-      <InputField
-        placeholder="Jam Tidur"
-        value={jamTidur}
-        onChangeText={setJamTidur}
+      <TextInput
+        style={styles.input}
+        placeholder="Judul Tidur"
+        placeholderTextColor="#94A3B8"
+        value={title}
+        onChangeText={setTitle}
       />
 
-      <InputField
+      <TextInput
+        style={styles.input}
         placeholder="Durasi Tidur"
-        value={durasi}
-        onChangeText={setDurasi}
+        placeholderTextColor="#94A3B8"
+        value={duration}
+        onChangeText={setDuration}
       />
 
-      <InputField
+      <TextInput
+        style={styles.input}
         placeholder="Kualitas Tidur"
-        value={kualitas}
-        onChangeText={setKualitas}
+        placeholderTextColor="#94A3B8"
+        value={quality}
+        onChangeText={setQuality}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleAdd}>
+      <TextInput
+        style={styles.input}
+        placeholder="URL Gambar"
+        placeholderTextColor="#94A3B8"
+        value={image}
+        onChangeText={setImage}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={addSleepData}>
         <Text style={styles.buttonText}>Simpan Catatan</Text>
       </TouchableOpacity>
     </View>
@@ -63,6 +111,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+
+  input: {
+    backgroundColor: '#1E293B',
+    color: '#FFFFFF',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 15,
   },
 
   button: {

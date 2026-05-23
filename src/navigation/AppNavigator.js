@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import TabNavigator from './TabNavigator';
 import AddSleepScreen from '../screens/AddSleepScreen';
+import EditSleepScreen from '../screens/EditSleepScreen';
 import SearchScreen from '../screens/SearchScreen';
 import AddSleepFormScreen from '../screens/AddSleepFormScreen';
 
@@ -33,6 +34,12 @@ const AppNavigator = () => {
           name="AddSleep"
           component={AddSleepScreen}
           options={{ title: 'Tambah Catatan Tidur' }}
+        />
+
+        <Stack.Screen
+          name="EditSleep"
+          component={EditSleepScreen}
+          options={{ title: 'Edit Catatan Tidur' }}
         />
 
         <Stack.Screen
