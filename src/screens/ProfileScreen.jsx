@@ -1,52 +1,136 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
 
-import ProfileCard from '../components/ProfileCard';
-import { profileData } from '../data/profileData';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Alert
+} from 'react-native';
 
-const ProfileScreen = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profil Pengguna</Text>
+import { useFocusEffect } from '@react-navigation/native';
 
-      <Image
-        style={styles.profileImage}
-        source={{
-          uri: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200',
-        }}
-      />
+import { supabase } from '../config/supabase';
 
-      <ProfileCard
-        nama={profileData.nama}
-        umur={profileData.umur}
-        email={profileData.email}
-      />
-    </View>
+export default function ProfileScreen({ navigation }) {
+
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getUser();
+    }, [])
   );
-};
 
-export default ProfileScreen;
+  const getUser = async () => {
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      setUserName(user.user_metadata.full_name);
+      setUserEmail(user.email);
+    }
+  };
+
+  const handleLogout = async () => {
+
+    Alert.alert(
+      'Logout',
+      'Yakin ingin logout?',
+      [
+        {
+          text: 'Batal',
+          style: 'cancel'
+        },
+        {
+          text: 'Logout',
+          onPress: async () => {
+            await supabase.auth.signOut();
+            navigation.replace('Login');
+          }
+        }
+      ]
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.name}>{userName}</Text>
+        <Text style={styles.email}>{userEmail}</Text>
+      </View>
+
+      <View style={styles.menuContainer}>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>
+            Logout
+          </Text>
+        </TouchableOpacity>
+
+      </View>
+
+    </ScrollView>
+  );
+}
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    padding: 20,
-    paddingTop: 50,
+    backgroundColor: '#0F172A'
+  },
+
+  header: {
+    padding: 30,
+    backgroundColor: '#1E293B',
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    alignItems: 'center'
   },
 
   title: {
-    color: '#FFFFFF',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: '#FFFFFF',
+    marginBottom: 20
   },
 
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    marginBottom: 20,
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF'
   },
+
+  email: {
+    fontSize: 14,
+    color: '#94A3B8',
+    marginTop: 5
+  },
+
+  menuContainer: {
+    padding: 20
+  },
+
+  logoutButton: {
+    backgroundColor: '#EF4444',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center'
+  },
+
+  logoutText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold'
+  }
+
 });
